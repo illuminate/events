@@ -22,4 +22,26 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('baz', $responses[1]);
 	}
 
+
+	public function testFirstMethod()
+	{
+		$GLOBALS['__event.test.foo'] = false;
+		$e = new Dispatcher;
+		$e->listen('foo', function()
+		{
+			return 'baz';
+		});
+		$e->listen('foo', function()
+		{
+			$GLOBALS['__event.test.foo'] = true;
+			return 'bar';
+		});
+		$response = $e->first('foo');
+
+		$this->assertEquals('baz', $response);
+		$this->assertFalse($GLOBALS['__event.test.foo']);
+
+		unset($GLOBALS['__event.test.foo']);
+	}
+
 }
