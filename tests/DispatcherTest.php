@@ -83,4 +83,24 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 		unset($GLOBALS['__event.test.multi']);		
 	}
 
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testListenException()
+	{
+		$e = new Dispatcher;
+		$e->listen('foo', 'adlkasd');
+	}
+
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testFlusherException()
+	{
+		$e = new Dispatcher;
+		$e->flusher('foo', 'adslkadf');
+	}
+
 }

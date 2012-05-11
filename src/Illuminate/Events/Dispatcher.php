@@ -43,12 +43,17 @@ class Dispatcher {
 	 * Register an event "flusher" to handles the flushing of a queue.
 	 *
 	 * @param  string   $queue
-	 * @param  Closure  $callback
+	 * @param  Closure  $callable
 	 * @return void
 	 */
-	public function flusher($queue, Closure $callback)
+	public function flusher($queue, $callable)
 	{
-		$this->flushers[$queue][] = $callback;
+		if ( ! is_callable($callable))
+		{
+			throw new \InvalidArgumentException("Event listener must be callable.");
+		}
+
+		$this->flushers[$queue][] = $callable;
 	}
 
 	/**
