@@ -84,6 +84,16 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testFlushingWithoutPayloads()
+	{
+		$e = new Dispatcher;
+		$e->flusher('foo', function() {});
+		$e->flush('foo');
+		// If we didn't have an exception the test passed
+		$this->assertTrue(true);
+	}
+
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */

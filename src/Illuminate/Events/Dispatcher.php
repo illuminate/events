@@ -10,6 +10,13 @@ class Dispatcher {
 	protected $events = array();
 
 	/**
+	 * All of the queued event payloads.
+	 *
+	 * @var array
+	 */
+	protected $queued = array();
+
+	/**
 	 * Register an evenet listener.
 	 *
 	 * @param  string  $event
@@ -66,6 +73,11 @@ class Dispatcher {
 	{
 		foreach ($this->flushers[$queue] as $flusher)
 		{
+			if ( ! isset($this->queued[$queue]))
+			{
+				return;
+			}
+
 			// We will simply spin through each payload registered for the event and
 			// fire the flusher, passing each payloads as we go. This allows all
 			// the events on teh queue to be processed by the flusher easily.
