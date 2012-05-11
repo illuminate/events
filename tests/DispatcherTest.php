@@ -44,4 +44,43 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 		unset($GLOBALS['__event.test.foo']);
 	}
 
+
+	public function testQueue()
+	{
+		unset($GLOBALS['__event.test.queue']);
+		$e = new Dispatcher;
+		$e->queue('foo', 1, array('name' => 'Taylor'));
+		$e->queue('foo', 2, array('name' => 'Eric'));
+		$e->flusher('foo', function($key, $payload)
+		{
+			$GLOBALS['__event.test.queue'][] = compact('key', 'payload');
+		});
+		$e->flush('foo');
+
+		$this->assertEquals(array('key' => 1, 'payload' => 'Taylor'), $GLOBALS['__event.test.queue'][0]);
+		$this->assertEquals(array('key' => 2, 'payload' => 'Eric'), $GLOBALS['__event.test.queue'][1]);
+		unset($GLOBALS['__event.test.queue']);
+	}
+
+
+	public function testMultiFlush()
+	{
+		unset($GLOBALS['__event.test.multi']);
+		$e = new Dispatcher;
+		$e->queue('foo', 1, array('name' => 'Taylor'));
+		$e->flusher('foo', function($key, $payload)
+		{
+			$GLOBALS['__event.test.multi'] = 1;
+		});
+		$e->flusher('foo', function($key, $payload)
+		{
+			$GLOBALS['__event.test.multi'] = 2;
+		});
+		$e->flush('foo');
+
+		$this->assertEquals(2, $GLOBALS['__event.test.multi']);
+
+		unset($GLOBALS['__event.test.multi']);		
+	}
+
 }
