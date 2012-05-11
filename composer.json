@@ -1,0 +1,13 @@
+{
+    "name": "illuminate/events",
+    "description": "A simple, powerful events system.",
+    "authors": [
+        {
+            "name": "Taylor Otwell",
+            "email": "taylorotwell@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
