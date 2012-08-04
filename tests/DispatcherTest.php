@@ -119,9 +119,9 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 	public function testGlobalListenersReceiveEventName()
 	{
 		$e = new Dispatcher;
-		$e->listen('*', function($event, $var)
+		$e->listen('*', function($event, $parameters)
 		{
-			$_SERVER['__event.test'] = $event.$var;
+			$_SERVER['__event.test'] = $event.$parameters[0];
 		});
 		$e->fire('foo', array('bar'));
 		$this->assertEquals('foobar', $_SERVER['__event.test']);

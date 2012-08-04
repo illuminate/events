@@ -125,12 +125,12 @@ class Dispatcher {
 	{
 		$responses = array();
 
-		// First we'll fire the global event if it isn't already being called
-		// which is helpful for profiling and debugging the events firing
-		// within the application, since you can see what gets called.
-		if ($event !== '*')
+		// First we'll fire all of the global event listners passing the name of
+		// the event followed by the array of parameters. These are good for
+		// profiling, debugging and viewing tfhe application event calls.
+		foreach ($this->getListeners('*') as $callable)
 		{
-			$this->fireGlobalEvent($event, $payload);
+			$response = call_user_func($callable, $event, $payload);
 		}
 
 		foreach ($this->getListeners($event) as $callable)
@@ -146,18 +146,6 @@ class Dispatcher {
 		}
 
 		return $responses;
-	}
-
-	/**
-	 * Fire the global event listeners.
-	 *
-	 * @param  string  $event
-	 * @param  array   $payload
-	 * @return void
-	 */
-	protected function fireGlobalEvent($event, array $payload)
-	{
-		$this->fire('*', array_merge((array) $event, $payload));
 	}
 
 	/**
