@@ -125,7 +125,13 @@ class Dispatcher {
 	{
 		$responses = array();
 
-		$this->fireGlobalEvent($event, $payload);
+		// First we'll fire the global event if it isn't already being called
+		// which is helpful for profiling and debugging the events firing
+		// within the application, since you can see what gets called.
+		if ($event !== '*')
+		{
+			$this->fireGlobalEvent($event, $payload);
+		}
 
 		foreach ($this->getListeners($event) as $callable)
 		{
