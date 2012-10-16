@@ -23,6 +23,29 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testEventOverride()
+	{
+		unset($_SERVER['__override.test1']);
+		unset($_SERVER['__override.test2']);
+		$e = new Dispatcher;
+		$e->listen('foo', function()
+		{
+			$_SERVER['__override.test1'] = true;
+		});
+		$e->override('foo', function()
+		{
+			$_SERVER['__override.test2'] = true;
+		});
+		$e->fire('foo');
+
+		$this->assertTrue($_SERVER['__override.test2']);
+		$this->assertFalse(isset($_SERVER['__override.test1']));
+
+		unset($_SERVER['__override.test1']);
+		unset($_SERVER['__override.test2']);
+	}
+
+
 	public function testFirstMethod()
 	{
 		$GLOBALS['__event.test.foo'] = false;

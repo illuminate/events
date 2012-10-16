@@ -34,6 +34,23 @@ class Dispatcher {
 	}
 
 	/**
+	 * Override all other registered event listeners.
+	 *
+	 * @param  string  $event
+	 * @param  mixed   $callable
+	 * @return void
+	 */
+	public function override($event, $callable)
+	{
+		if ( ! is_callable($callable))
+		{
+			throw new \InvalidArgumentException("Event listener must be callable.");			
+		}
+
+		$this->events[$event] = array($callable);
+	}
+
+	/**
 	 * Add a payload to an event queue.
 	 *
 	 * @param  string  $queue
