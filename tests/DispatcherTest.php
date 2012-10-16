@@ -117,6 +117,41 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	public function testGlobalEventCalledForAllEvents()
+	{
+		$_SERVER['__event.test'] = 0;
+		$e = new Dispatcher;
+		$e->listen('*', function()
+		{
+			$_SERVER['__event.test']++;
+		});
+		$e->listen('*', function()
+		{
+			$_SERVER['__event.test']++;
+		});
+		$e->listen('foo', function()
+		{
+			$_SERVER['__event.test']++;
+		});
+		$e->fire('foo');
+		$this->assertEquals(3, $_SERVER['__event.test']);
+		unset($_SERVER['__event.test']);
+	}
+
+
+	public function testGlobalListenersReceiveEventName()
+	{
+		$e = new Dispatcher;
+		$e->listen('*', function($event, $parameters)
+		{
+			$_SERVER['__event.test'] = $event.$parameters[0];
+		});
+		$e->fire('foo', array('bar'));
+		$this->assertEquals('foobar', $_SERVER['__event.test']);
+		unset($_SERVER['__event.test']);	
+	}
+
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */

@@ -17,7 +17,18 @@ class Dispatcher {
 	protected $queued = array();
 
 	/**
-	 * Register an evenet listener.
+	 * Register a global event listener.
+	 *
+	 * @param  mixed   $callable
+	 * @return void
+	 */
+	public function all($callable)
+	{
+		return $this->listen('*', $callable);
+	}
+
+	/**
+	 * Register an event listener.
 	 *
 	 * @param  string  $event
 	 * @param  mixed   $callable
@@ -131,22 +142,38 @@ class Dispatcher {
 	{
 		$responses = array();
 
-		foreach ($this->events[$event] as $callable)
+		// First we'll fire all of the global event listners passing the name of
+		// the event followed by the array of parameters. These are good for
+		// profiling, debugging and viewing tfhe application event calls.
+		foreach ($this->getListeners('*') as $callable)
+		{
+			$response = call_user_func($callable, $event, $payload);
+		}
+
+		foreach ($this->getListeners($event) as $callable)
 		{
 			$response = call_user_func_array($callable, $payload);
 
-			// If the response is not null and halting is enabled, we will stop
-			// firing the events and return the response. This allows us to
-			// get just the first valid response from an event listener.
-			if ( ! is_null($response) and $halt)
-			{
-				return $response;
-			}
+			// If the response is not null and halting is enabled, we will stop firing
+			// the events and return the response. This allows us to get the first
+			// valid response from a listener and return it back to the caller.
+			if ( ! is_null($response) and $halt) return $response;
 
 			$responses[] = $response;
 		}
 
 		return $responses;
+	}
+
+	/**
+	 * Get the listeners for a given event.
+	 *
+	 * @param  string  $event
+	 * @return array
+	 */
+	protected function getListeners($event)
+	{
+		return isset($this->events[$event]) ? $this->events[$event] : array();
 	}
 
 }
