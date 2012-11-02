@@ -1,4 +1,7 @@
-<?php namespace Illuminate\Events; use Closure;
+<?php namespace Illuminate\Events;
+
+use Closure;
+use Illuminate\Container;
 
 class Dispatcher {
 
@@ -15,6 +18,13 @@ class Dispatcher {
 	 * @var array
 	 */
 	protected $queued = array();
+
+	/**
+	 * The IoC container instance.
+	 *
+	 * @var Illuminate\Container
+	 */
+	protected $container;
 
 	/**
 	 * Register a global event listener.
@@ -36,12 +46,7 @@ class Dispatcher {
 	 */
 	public function listen($event, $callable)
 	{
-		if ( ! is_callable($callable))
-		{
-			throw new \InvalidArgumentException("Event listener must be callable.");
-		}
-
-		$this->events[$event][] = $callable;
+		$this->events[$event][] = $this->buildEventListener($callable);
 	}
 
 	/**
@@ -53,12 +58,7 @@ class Dispatcher {
 	 */
 	public function override($event, $callable)
 	{
-		if ( ! is_callable($callable))
-		{
-			throw new \InvalidArgumentException("Event listener must be callable.");			
-		}
-
-		$this->events[$event] = array($callable);
+		$this->events[$event] = array($this->buildEventListener($callable));
 	}
 
 	/**
@@ -83,12 +83,49 @@ class Dispatcher {
 	 */
 	public function flusher($queue, $callable)
 	{
+		$this->flushers[$queue][] = $this->buildEventListener($callable);
+	}
+
+	/**
+	 * Build the event listener callback.
+	 *
+	 * @param  mixed    $callable
+	 * @return Closure
+	 */
+	protected function buildEventListener($callable)
+	{
+		if (is_string($callable) and isset($this->container))
+		{
+			return $this->buildClassListenerCallback($callable);
+		}
+
 		if ( ! is_callable($callable))
 		{
 			throw new \InvalidArgumentException("Event listener must be callable.");
 		}
 
-		$this->flushers[$queue][] = $callable;
+		return $callable;
+	}
+
+	/**
+	 * Build an event listener callback from a string.
+	 *
+	 * @param  string   $callback
+	 * @return Closure
+	 */
+	protected function buildClassListenerCallback($callable)
+	{
+		$container = $this->container;
+
+		// For even callbacks that are strings, we will resolve them from the container
+		// and call the handle method on the instance, passing in the arguments that
+		// are passed into our handler, which allows for testable, class handlers.
+		return function() use ($callable, $container)
+		{
+			$callable = array($container->make($callable), 'handle');
+
+			return call_user_func_array($callable, func_get_args());
+		};
 	}
 
 	/**
@@ -106,9 +143,9 @@ class Dispatcher {
 				return;
 			}
 
-			// We will simply spin through each payload registered for the event and
-			// fire the flusher, passing each payloads as we go. This allows all
-			// the events on teh queue to be processed by the flusher easily.
+			// We will simply spin through each payload registered for this event and
+			// fire the flushers, passing each payloads as we go, which allows all
+			// the events on the queue to be processed by these flushers easily.
 			foreach ($this->queued[$queue] as $key => $payload)
 			{
 				array_unshift($payload, $key);
@@ -174,6 +211,17 @@ class Dispatcher {
 	protected function getListeners($event)
 	{
 		return isset($this->events[$event]) ? $this->events[$event] : array();
+	}
+
+	/**
+	 * Set the IoC container instance.
+	 *
+	 * @param  Illuminate\Container  $container
+	 * @return void
+	 */
+	public function setContainer(Container $container)
+	{
+		$this->container = $container;
 	}
 
 }

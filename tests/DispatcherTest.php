@@ -1,8 +1,15 @@
 <?php
 
+use Mockery as m;
 use Illuminate\Events\Dispatcher;
 
 class DispatcherTest extends PHPUnit_Framework_TestCase {
+
+	public function tearDown()
+	{
+		m::close();
+	}
+
 
 	public function testBasicEventFiring()
 	{
@@ -20,6 +27,18 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, count($responses));
 		$this->assertEquals('bar', $responses[0]);
 		$this->assertEquals('baz', $responses[1]);
+	}
+
+
+	public function testClassBasedListeners()
+	{
+		$e = new Dispatcher;
+		$e->setContainer($container = m::mock('Illuminate\Container'));
+		$listener = m::mock('stdClass');
+		$listener->shouldReceive('handle')->once()->with('foo');
+		$container->shouldReceive('make')->once()->with('FooListener')->andReturn($listener);
+		$e->listen('bar', 'FooListener');
+		$e->fire('bar', array('foo'));
 	}
 
 
