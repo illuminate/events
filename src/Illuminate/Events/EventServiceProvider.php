@@ -7,12 +7,11 @@ class EventServiceProvider extends ServiceProvider {
 	/**
 	 * Register the service provider.
 	 *
-	 * @param  Illuminate\Foundation\Application  $app
 	 * @return void
 	 */
-	public function register($app)
+	public function register()
 	{
-		$app['events'] = $app->share(function($app)
+		$this->app['events'] = $this->app->share(function()
 		{
 			return new Dispatcher;
 		});
