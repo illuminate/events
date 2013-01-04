@@ -11,9 +11,9 @@ class EventServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['events'] = $this->app->share(function()
+		$this->app['events'] = $this->app->share(function($app)
 		{
-			return new Dispatcher;
+			return new Dispatcher($app);
 		});
 	}
 
