@@ -55,6 +55,28 @@ class Dispatcher extends SymfonyDispatcher {
 	}
 
 	/**
+	 * Register an event subscriber class.
+	 *
+	 * @param  Symfony\Component\EventDispatcher\EventSubscriberInterface  $subscriber
+	 * @return void
+	 */
+	public function subscribe(EventSubscriberInterface $subscriber)
+	{
+		return parent::addSubscriber($subscriber);
+	}
+
+	/**
+	 * Remove an event subscriber.
+	 *
+	 * @param  Symfony\Component\EventDispatcher\EventSubscriberInterface  $subscriber
+	 * @return void
+	 */
+	public function unsubscribe(EventSubscriberInterface $subscriber)
+	{
+		return parent::removeSubscriber($subscriber);
+	}
+
+	/**
 	 * Register an event listener with the dispatcher.
 	 *
 	 * @param  string  $event
