@@ -2,6 +2,7 @@
 
 use Illuminate\Container;
 use Symfony\Component\EventDispatcher\Event as SymfonyEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher as SymfonyDispatcher;
 
 class Dispatcher extends SymfonyDispatcher {
