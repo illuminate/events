@@ -1,5 +1,7 @@
 <?php namespace Illuminate\Events;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 class Subscriber implements EventSubscriberInterface {
 
 	/**
