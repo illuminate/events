@@ -25,7 +25,7 @@ class DispatcherTest extends PHPUnit_Framework_TestCase {
 		$d = new Dispatcher($container = m::mock('Illuminate\Container'));
 		$container->shouldReceive('make')->once()->with('FooHandler')->andReturn($handler = m::mock('StdClass'));
 		$handler->shouldReceive('onFooEvent')->once()->with(m::type('Illuminate\Events\Event'));
-		$d->listen('foo', 'FooHandler:onFooEvent');
+		$d->listen('foo', 'FooHandler@onFooEvent');
 		$d->fire('foo', new Illuminate\Events\Event);
 	}
 
