@@ -110,7 +110,7 @@ class Dispatcher extends SymfonyDispatcher {
 			// If the listener has a colon, we will assume it is being used to delimit
 			// the class name from the handle method name. This allows for handlers
 			// to run multiple handler methods in a single class for convenience.
-			$segments = explode('@', $listener);
+			$segments = explode(':', $listener);
 
 			$method = count($segments) == 2 ? $segments[1] : 'handle';
 
